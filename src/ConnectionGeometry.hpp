@@ -50,6 +50,7 @@ public:
   setHovered(bool hovered) { _hovered = hovered; }
 
 private:
+  void initPath();
   // local object coordinates
   QPointF _in;
   QPointF _out;

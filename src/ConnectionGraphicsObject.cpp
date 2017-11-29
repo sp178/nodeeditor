@@ -181,7 +181,7 @@ double length(QPointF _l,QPointF _r)
 }
 double pointToline(const QPointF& _l1,const QPointF& _l2,const QPointF& _p)
 {
-    return length(_l1,_p)+length(_l2,_p);
+//    return length(_l1,_p)+length(_l2,_p);
 //    double a,b,c;
 //    if(fabs(_l1.x()-_l2.x())<1E-6)
 //    {
@@ -194,7 +194,12 @@ double pointToline(const QPointF& _l1,const QPointF& _l2,const QPointF& _p)
 //        b = -1/(_l2.y()-_l1.y());
 //        c = -_l1.x()/a-_l1.y()/b;
 //    }
-//    return fabs(a*_p.x()+b*_p.y()+c)/sqrt(a*a+b*b);
+//    return fabs(a*_p.x()+b*_p.y()+c)/sqrt(a*a+b*b+0.1);
+
+       if(fabs(_l1.x()-_l2.x())<5)
+           return fabs(_l1.x()-_p.x());
+       if(fabs(_l1.y()-_l2.y())<5)
+           return fabs(_l1.y()-_p.y());
 }
 #include"QDebug"
 
@@ -208,83 +213,101 @@ mouseMoveEvent(QGraphicsSceneMouseEvent* event)
   int chose = 1;
   if(_firstclick)
   {
-      _choisPoint = 0;
-      if(4==path.size())
+      if(path.size()==4)
       {
-            double position[3];
-            position[0] = pointToline(path[0],path[1],event->pos());
-            position[1] = pointToline(path[1],path[2],event->pos());
-            position[2] = pointToline(path[2],path[3],event->pos());
-            double small= std::min(position[2],std::min(position[1],position[0]));
-            for(int index_ = 0;index_<3;++index_)
-            {
-                if(fabs(small-position[index_])<1E-9)
-                {
-                    _choisPoint = index_;
-                    break;
-                }
-            }
-            if(0==_choisPoint&&fabs(path[0].y()-path[1].y())<5)
-            {
-                _choisPoint=1;
-            }
-            if(2==_choisPoint&&fabs(path[3].y()-path[2].y())<5)
-            {
-                _choisPoint=1;
-            }
-            switch (_choisPoint) {
-            case 0:
-                  path[0]=QPointF(event->pos().x(),geom.sink().y());
-                  path[1].rx()=event->pos().x();
-                break;
-            case 1:
-                  path[1].ry() = event->pos().y();
-                  path[2].ry() = event->pos().y();
-                break;
-            case 2:
-                  path[2].rx() = event->pos().x();
-                  path[3].rx() = event->pos().x();
-                break;
-            default:
-                break;
-            }
-
-      }else{
-          bool choseed = false;
-          QPointF _in,_nearin,_nearout,_out;
-          _in = QPointF(geom.sink().x()-10,geom.sink().y());
-          _nearin = QPointF(event->pos().x(),_in.y());
-          _out = QPointF(geom.source().x()+10,geom.source().y());
-          _nearout = QPointF(_out.x(),_nearin.y());
-          path.push_back(_in);
-          path.push_back(_nearin);
-          path.push_back(_nearout);
-          path.push_back(_out);
-          _choisPoint = 2;
+          double position[3];
+          position[0] = pointToline(path[0],path[1],event->pos());
+          position[1] = pointToline(path[1],path[2],event->pos());
+          position[2] = pointToline(path[2],path[3],event->pos());
+          double small= std::min(position[2],std::min(position[1],position[0]));
+          for(int index_ = 0;index_<3;++index_)
+          {
+              if(fabs(small-position[index_])<1E-9)
+              {
+                  _choisPoint = index_;
+                  break;
+              }
+          }
+//          if(0==_choisPoint&&fabs(path[0].y()-path[1].y())<5)
+//          {
+//              _choisPoint=1;
+//          }
+//          if(2==_choisPoint&&fabs(path[3].y()-path[2].y())<5)
+//          {
+//              _choisPoint=1;
+//          }
+          switch (_choisPoint) {
+          case 0:
+                path[0]=QPointF(event->pos().x(),geom.sink().y());
+                path[1].rx()=event->pos().x();
+              break;
+          case 1:
+                path[1].ry() = event->pos().y();
+                path[2].ry() = event->pos().y();
+              break;
+          case 2:
+                path[2].rx() = event->pos().x();
+                path[3].rx() = event->pos().x();
+              break;
+          default:
+              break;
+          }
+      }
+      if(path.size()==2)
+      {
+          path[0].rx()=event->pos().x();
+          path[1].rx()=event->pos().x();
       }
       _firstclick = false;
-  }else{
-      if(4==path.size())
+  }else
+  {
+      if(path.size()==4)
       {
-      switch (_choisPoint) {
-      case 0:
-            path[0]=QPointF(event->pos().x(),geom.sink().y());
-            path[1].rx()=event->pos().x();
-          break;
-      case 1:
-            path[1].ry() = event->pos().y();
-            path[2].ry() = event->pos().y();
-          break;
-      case 2:
-            path[2].rx() = event->pos().x();
-            path[3].rx() = event->pos().x();
-          break;
-      default:
-          break;
+          double position[3];
+          position[0] = pointToline(path[0],path[1],event->pos());
+          position[1] = pointToline(path[1],path[2],event->pos());
+          position[2] = pointToline(path[2],path[3],event->pos());
+          double small= std::min(position[2],std::min(position[1],position[0]));
+          for(int index_ = 0;index_<3;++index_)
+          {
+              if(fabs(small-position[index_])<1E-9)
+              {
+                  _choisPoint = index_;
+                  break;
+              }
+          }
+//          if(0==_choisPoint&&fabs(path[0].y()-path[1].y())<5)
+//          {
+//              _choisPoint=1;
+//          }
+//          if(2==_choisPoint&&fabs(path[3].y()-path[2].y())<5)
+//          {
+//              _choisPoint=1;
+//          }
+          switch (_choisPoint) {
+          case 0:
+                path[0]=QPointF(event->pos().x(),geom.sink().y());
+                path[1].rx()=event->pos().x();
+              break;
+          case 1:
+                path[1].ry() = event->pos().y();
+                path[2].ry() = event->pos().y();
+              break;
+          case 2:
+                path[2].rx() = event->pos().x();
+                path[3].rx() = event->pos().x();
+              break;
+          default:
+              break;
+          }
       }
+      if(path.size()==2)
+      {
+          path[0].rx()=event->pos().x();
+          path[1].rx()=event->pos().x();
       }
   }
-    qDebug()<<event->pos()<<event->scenePos();
+  qDebug()<<event->pos()<<event->scenePos();
 
 
 

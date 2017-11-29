@@ -143,8 +143,6 @@ paint(QPainter* painter,
   }
 #endif
 
-  auto cubic = cubicPath(geom);
-
   bool const hovered = geom.hovered();
 
   auto const& graphicsObject =
