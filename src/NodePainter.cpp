@@ -179,7 +179,6 @@ drawConnectionPoints(QPainter* painter,
         {
           painter->setBrush(nodeStyle.ConnectionPointColor);
         }
-
         painter->drawEllipse(p,
                              reducedDiameter * r,
                              reducedDiameter * r);

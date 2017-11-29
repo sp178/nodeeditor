@@ -89,11 +89,32 @@ boundingRect() const
 
   commonRect.setTopLeft(commonRect.topLeft() - cornerOffset);
   commonRect.setBottomRight(commonRect.bottomRight() + 2 * cornerOffset);
+  commonRect.setTopLeft(QPointF(-1024,-1027));
+  commonRect.setBottomRight(QPointF(1024,1024));
 
   return commonRect;
 }
+QPointF operator /(QPointF _l,QPointF _r)
+{
+    if(fabs(_r.rx())<1E-4) _r.rx()=1E-4;
+    if(fabs(_r.ry())<1E-4) _r.ry()=1E-4;
+    QPointF tmp(_l.rx()/_r.rx(),_l.ry()/_r.ry());
+    return tmp;
+}
+int
+ConnectionGeometry::addPath(QPointF _path)
+{
 
+    if(_paintpath.size()<_maxpath)
+        _paintpath.push_back(_path);
+    return _paintpath.size();
+}
 
+std::vector<QPointF>&
+ConnectionGeometry::getPath()
+{
+    return _paintpath;
+}
 std::pair<QPointF, QPointF>
 ConnectionGeometry::
 pointsC1C2() const

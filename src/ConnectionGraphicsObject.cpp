@@ -31,7 +31,7 @@ ConnectionGraphicsObject(FlowScene &scene,
   , _connection(connection)
 {
   _scene.addItem(this);
-
+    _firstclick = false;
   setFlag(QGraphicsItem::ItemIsMovable, true);
   setFlag(QGraphicsItem::ItemIsFocusable, true);
   setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -39,7 +39,7 @@ ConnectionGraphicsObject(FlowScene &scene,
   setAcceptHoverEvents(true);
 
   // addGraphicsEffect();
-
+    _qwidget = nullptr;
   setZValue(-1.0);
 }
 
@@ -63,7 +63,8 @@ QRectF
 ConnectionGraphicsObject::
 boundingRect() const
 {
-  return _connection.connectionGeometry().boundingRect();
+
+        return _connection.connectionGeometry().boundingRect();
 }
 
 
@@ -129,6 +130,16 @@ move()
     }
   };
 
+  //adjest connect
+  std::vector<QPointF>& path = _connection.connectionGeometry().getPath();
+  auto& geom = _connection.connectionGeometry();
+  if(4==path.size())
+  {
+      path[0].ry() = geom.sink().ry();
+      path[1].rx() = path[0].rx();
+      path[3].ry() = geom.source().ry();
+      path[2].rx() = path[3].rx();
+  }
   moveEndPoint(PortType::In);
   moveEndPoint(PortType::Out);
 }
@@ -145,10 +156,10 @@ void
 ConnectionGraphicsObject::
 paint(QPainter* painter,
       QStyleOptionGraphicsItem const* option,
-      QWidget*)
+      QWidget* _widget)
 {
   painter->setClipRect(option->exposedRect);
-
+  _qwidget =  _widget;
   ConnectionPainter::paint(painter,
                            _connection);
 }
@@ -158,16 +169,124 @@ void
 ConnectionGraphicsObject::
 mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
+    _firstclick = true;
   QGraphicsItem::mousePressEvent(event);
   //event->ignore();
 }
 
+double length(QPointF _l,QPointF _r)
+{
+    QPointF length = _l-_r;
+    return sqrt(pow(length.rx(),2)+pow(length.ry(),2));
+}
+double pointToline(const QPointF& _l1,const QPointF& _l2,const QPointF& _p)
+{
+    return length(_l1,_p)+length(_l2,_p);
+//    double a,b,c;
+//    if(fabs(_l1.x()-_l2.x())<1E-6)
+//    {
+//        a=1;b=0;c=-_l1.x();
+//    }else if(fabs(_l1.y()-_l2.y())<1E-6)
+//    {
+//        a=0;b=_l1.y();c=-_l1.y();
+//    }else{
+//        a = 1/(_l2.x()-_l1.x());
+//        b = -1/(_l2.y()-_l1.y());
+//        c = -_l1.x()/a-_l1.y()/b;
+//    }
+//    return fabs(a*_p.x()+b*_p.y()+c)/sqrt(a*a+b*b);
+}
+#include"QDebug"
 
 void
 ConnectionGraphicsObject::
 mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
   prepareGeometryChange();
+  std::vector<QPointF>& path = _connection.connectionGeometry().getPath();
+  auto& geom = _connection.connectionGeometry();
+  int chose = 1;
+  if(_firstclick)
+  {
+      _choisPoint = 0;
+      if(4==path.size())
+      {
+            double position[3];
+            position[0] = pointToline(path[0],path[1],event->pos());
+            position[1] = pointToline(path[1],path[2],event->pos());
+            position[2] = pointToline(path[2],path[3],event->pos());
+            double small= std::min(position[2],std::min(position[1],position[0]));
+            for(int index_ = 0;index_<3;++index_)
+            {
+                if(fabs(small-position[index_])<1E-9)
+                {
+                    _choisPoint = index_;
+                    break;
+                }
+            }
+            if(0==_choisPoint&&fabs(path[0].y()-path[1].y())<5)
+            {
+                _choisPoint=1;
+            }
+            if(2==_choisPoint&&fabs(path[3].y()-path[2].y())<5)
+            {
+                _choisPoint=1;
+            }
+            switch (_choisPoint) {
+            case 0:
+                  path[0]=QPointF(event->pos().x(),geom.sink().y());
+                  path[1].rx()=event->pos().x();
+                break;
+            case 1:
+                  path[1].ry() = event->pos().y();
+                  path[2].ry() = event->pos().y();
+                break;
+            case 2:
+                  path[2].rx() = event->pos().x();
+                  path[3].rx() = event->pos().x();
+                break;
+            default:
+                break;
+            }
+
+      }else{
+          bool choseed = false;
+          QPointF _in,_nearin,_nearout,_out;
+          _in = QPointF(geom.sink().x()-10,geom.sink().y());
+          _nearin = QPointF(event->pos().x(),_in.y());
+          _out = QPointF(geom.source().x()+10,geom.source().y());
+          _nearout = QPointF(_out.x(),_nearin.y());
+          path.push_back(_in);
+          path.push_back(_nearin);
+          path.push_back(_nearout);
+          path.push_back(_out);
+          _choisPoint = 2;
+      }
+      _firstclick = false;
+  }else{
+      if(4==path.size())
+      {
+      switch (_choisPoint) {
+      case 0:
+            path[0]=QPointF(event->pos().x(),geom.sink().y());
+            path[1].rx()=event->pos().x();
+          break;
+      case 1:
+            path[1].ry() = event->pos().y();
+            path[2].ry() = event->pos().y();
+          break;
+      case 2:
+            path[2].rx() = event->pos().x();
+            path[3].rx() = event->pos().x();
+          break;
+      default:
+          break;
+      }
+      }
+  }
+    qDebug()<<event->pos()<<event->scenePos();
+
+
 
   auto view = static_cast<QGraphicsView*>(event->widget());
   auto node = locateNodeAt(event->scenePos(),
@@ -202,7 +321,7 @@ mouseMoveEvent(QGraphicsSceneMouseEvent* event)
   event->accept();
 }
 
-
+#include<QDebug>
 void
 ConnectionGraphicsObject::
 mouseReleaseEvent(QGraphicsSceneMouseEvent* event)

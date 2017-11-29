@@ -10,7 +10,7 @@ class QGraphicsSceneMouseEvent;
 
 namespace QtNodes
 {
-//class lineitem;
+
 class FlowScene;
 class Connection;
 class ConnectionGeometry;
@@ -83,39 +83,9 @@ private:
   addGraphicsEffect();
 
 private:
-   QWidget* _qwidget;
-  int _choisPoint;
+
   FlowScene & _scene;
-  bool  _firstclick;
+
   Connection& _connection;
-  //std::vector<lineitem*> _lineitem;
-
 };
-//class lineitem
-//: public QGraphicsObject
-//{
-//Q_OBJECT
-//public:
-//protected:
-//  void
-//  paint(QPainter* painter,
-//        QStyleOptionGraphicsItem const* option,
-//        QWidget* widget = 0) override;
-//  void
-//  mousePressEvent(QGraphicsSceneMouseEvent* event) override;
-
-//  void
-//  mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
-
-//  void
-//  mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
-
-//  void
-//  hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
-
-//  void
-//  hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
-//};
-
-
 }

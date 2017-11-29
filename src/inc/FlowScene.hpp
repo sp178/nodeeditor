@@ -103,7 +103,7 @@ signals:
   void nodeMoved(Node& n, const QPointF& newLocation);
 
   void nodeDoubleClicked(Node& n);
-//sp178
+
   void connectionHovered(Connection& c, QPoint screenPos);
 
   void nodeHovered(Node& n, QPoint screenPos);

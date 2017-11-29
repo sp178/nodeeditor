@@ -20,10 +20,7 @@ public:
 
   QPointF const&
   getEndPoint(PortType portType) const;
-  int
-  addPath(QPointF _path);
-  std::vector<QPointF>&
-  getPath();
+
   void
   setEndPoint(PortType portType, QPointF const& point);
 
@@ -53,9 +50,9 @@ private:
   // local object coordinates
   QPointF _in;
   QPointF _out;
-  std::vector<QPointF> _paintpath;      //sp178 mutipath
+
   //int _animationPhase;
-  const static uint32_t _maxpath = 4;
+
   double _lineWidth;
 
   bool _hovered;

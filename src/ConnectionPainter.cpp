@@ -48,11 +48,26 @@ getPainterStroke(ConnectionGeometry const& geom)
 
   unsigned segments = 20;
 
-  for (auto i = 0ul; i < segments; ++i)
+  const auto& path =  ((ConnectionGeometry*)&geom)->getPath();
+  if(path.size()>0)
   {
-    double ratio = double(i + 1) / segments;
-    result.lineTo(cubic.pointAtPercent(ratio));
+      result.moveTo(geom.sink());
+      for(auto& point:path)
+      {
+         result.lineTo(point);
+      }
+      result.lineTo(geom.source());
+  }else
+  {
+     result.moveTo(geom.sink());
+     result.lineTo(geom.source());
+//      for (auto i = 0ul; i < segments; ++i)
+//      {
+//        double ratio = double(i + 1) / segments;
+//        result.lineTo(cubic.pointAtPercent(ratio));
+//      }
   }
+
 
   QPainterPathStroker stroker; stroker.setWidth(10.0);
 
@@ -69,6 +84,7 @@ ConnectionPainter::
 paint(QPainter* painter,
       Connection const &connection)
 {
+    //sp178 found line draw
   auto const &connectionStyle =
     StyleCollection::connectionStyle();
 
@@ -76,6 +92,9 @@ paint(QPainter* painter,
   QColor hoverColor    = connectionStyle.hoveredColor();
   QColor selectedColor = connectionStyle.selectedColor();
 
+//  QColor normalColor   = QColor(120,0,0);
+//  QColor hoverColor    = QColor(0,120,0);
+//  QColor selectedColor = QColor(0,0,120);
   auto dataType = connection.dataType();
 
   if (connectionStyle.useDataDefinedColors())
@@ -147,7 +166,18 @@ paint(QPainter* painter,
 
     // cubic spline
 
-    painter->drawPath(cubic);
+    auto& sppath =  ((ConnectionGeometry*)&geom)->getPath();
+    if(sppath.size()!=0)
+    {
+        painter->drawLine(geom.sink(),sppath[0]);
+        for(int index_=0;index_<sppath.size()-1;++index_)
+            painter->drawLine(sppath[index_],sppath[index_+1]);
+        painter->drawLine(sppath[sppath.size()-1],geom.source());
+    }else{
+            painter->drawLine(geom.sink(),geom.source());
+    }
+
+    //painter->drawPath(cubic);
   }
 
   // draw normal line
@@ -171,8 +201,22 @@ paint(QPainter* painter,
     painter->setPen(p);
     painter->setBrush(Qt::NoBrush);
 
+    //sp178
     // cubic spline
-    painter->drawPath(cubic);
+//    painter->drawPath(cubic);
+
+    //sp178
+    const auto&sppath =  ((ConnectionGeometry*)&geom)->getPath();
+
+    if(sppath.size()!=0)
+    {
+        painter->drawLine(geom.sink(),sppath[0]);
+        for(int index_=0;index_<sppath.size()-1;++index_)
+            painter->drawLine(sppath[index_],sppath[index_+1]);
+        painter->drawLine(sppath[sppath.size()-1],geom.source());
+    }else{
+            painter->drawLine(geom.sink(),geom.source());
+    }
   }
 
   QPointF const& source = geom.source();
