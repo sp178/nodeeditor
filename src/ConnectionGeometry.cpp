@@ -18,10 +18,9 @@ ConnectionGeometry()
 
 QPointF const&
 ConnectionGeometry::
-getEndPoint(PortType portType) const
+getEndPoint(PortType portType)
 {
   Q_ASSERT(portType != PortType::None);
-
   return (portType == PortType::Out ?
           _out :
           _in);
@@ -66,7 +65,6 @@ moveEndPoint(PortType portType, QPointF const &offset)
     default:
       break;
   }
-
 }
 
 void
@@ -77,7 +75,7 @@ initPath()
     {
      if(_paintpath.size()!=2)
      {
-         if(_in!=QPointF(0,0)&&_out!=QPointF(0,0))
+         if(_in!=QPointF(0,0)||_out!=QPointF(0,0))
          {
          _paintpath.resize(2);
          _paintpath[0] = _in;
@@ -86,7 +84,7 @@ initPath()
          _paintpath[0].rx()= 0.5*(_in.x()+_out.x());
          }
      }else{
-         if(_in!=QPointF(0,0)&&_out!=QPointF(0,0))
+         if(_in!=QPointF(0,0)||_out!=QPointF(0,0))
          {
              _paintpath[0].ry()= _in.y();
              _paintpath[1].ry()= _out.y();
@@ -103,7 +101,7 @@ initPath()
     {
         if(_paintpath.size()!=4)
         {
-            if(_in!=QPointF(0,0)&&_out!=QPointF(0,0))
+            if(_in!=QPointF(0,0)||_out!=QPointF(0,0))
             {
                 _paintpath.resize(4);
                 _paintpath[0] = _in;
@@ -131,7 +129,7 @@ initPath()
 }
 QRectF
 ConnectionGeometry::
-boundingRect() const
+boundingRect()
 {
   auto points = pointsC1C2();
 

@@ -19,7 +19,7 @@ public:
 public:
 
   QPointF const&
-  getEndPoint(PortType portType) const;
+  getEndPoint(PortType portType);
   int
   addPath(QPointF _path);
   std::vector<QPointF>&
@@ -31,7 +31,7 @@ public:
   moveEndPoint(PortType portType, QPointF const &offset);
 
   QRectF
-  boundingRect() const;
+  boundingRect();
 
   std::pair<QPointF, QPointF>
   pointsC1C2() const;
@@ -48,9 +48,9 @@ public:
   hovered() const { return _hovered; }
   void
   setHovered(bool hovered) { _hovered = hovered; }
-
-private:
   void initPath();
+private:
+
   // local object coordinates
   QPointF _in;
   QPointF _out;
